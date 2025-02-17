@@ -1,25 +1,3 @@
-# My OpenGL Learning Journey
-This repo will contain mostly everything that I have learned about OpenGL, all separated in to branches. I will try to keep everything well documented, with a roadmap in this readme file, and perhaps more description as to what was learned other readme files in their respective branches.
-
-### NOTE: The following notes I take on these branches correlate to the context of these branches, and not necessarily covering the whole scope of a topic.
-
-## Requirements
-Requirements will be different for each branch when looking at vendors/dependencies.
-
-- CMake (v3.20+)
-- OpenGL (v4.6+) (updated through kisak-mesa)
-- Dependencies: GLFW, GLEW
-
-## Building the Project
-- Being in the correct directory ( the one with CMakeLists.txt in it ), run cmake
-  - I use Dispatch with nvim, as such I run
-`:Dispatch cmake`
-- Run the generated makefile
-`:Dispatch make`
-- Run the generated file to view the created graphics
-`:Dispatch ./src/app`
-    - My CMake is set up such that the generated file is located in the src folder, along with the main code
-
 ## Contents of This Branch
 In a thorough investigation to ensure I understand the general workflow of using opengl at a beginner level, I looked into understanding each of the functions to develop a general workflow to follow.
 
@@ -47,8 +25,3 @@ For now in this branch, we will not cover how to write your own shaders just yet
 - link the shaders together
 - delete the no longer needed shaders
 - run the program before rendering
-
-## Roadmap
-The order of progression:
-- [main](https://github.com/Haikp/OpenGLRevisited/tree/main)
-- triangle
