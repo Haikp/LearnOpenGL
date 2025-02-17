@@ -1,0 +1,41 @@
+# Ignore Neovim swap files
+*.swp
+*.swo
+*.swn
+
+# Ignore Neovim undo and backup files
+*.un~
+*.bak
+
+# Ignore build artifacts
+/build/
+/bin/
+/dist/
+*.o
+*.obj
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Ignore CMake and Makefile generated files
+CMakeCache.txt
+CMakeFiles/
+Makefile
+cmake_install.cmake
+src/app
+
+# Ignore compiled shaders
+*.spv
+
+# Ignore logs and temp files
+*.log
+*.tmp
+
+# Ignore dependencies
+/vendor/
+/dependencies/
+test/
+
+#ignore graphical config
+*.xlaunch
