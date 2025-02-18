@@ -17,6 +17,12 @@ set_target_properties(app PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${FullOutputDir}
 )
 
+include_directories(${CMAKE_SOURCE_DIR}/../include)
+
+add_library(my_library SHARED
+    ../src/shaders.cpp
+)
+
 set(CMAKE_PREFIX_PATH "/usr/local/lib/cmake/glfw3/glfw3Config.cmake" ${CMAKE_PREFIX_PATH})
 set(CMAKE_PREFIX_PATH "/usr/local/lib/cmake/glew/glew-config.cmake" ${CMAKE_PREFIX_PATH})
 find_package(glfw3 REQUIRED)
@@ -27,3 +33,4 @@ target_link_libraries(app PRIVATE glfw3)
 target_link_libraries(app PRIVATE glfw3 dl)
 target_link_libraries(app PRIVATE glfw3 ${OPENGL_LIBRARIES} pthread)
 target_link_libraries(app PRIVATE GLEW::GLEW)
+target_link_libraries(app PRIVATE my_library)
