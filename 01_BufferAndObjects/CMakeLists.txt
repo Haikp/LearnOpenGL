@@ -17,9 +17,8 @@ set_target_properties(app PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${FullOutputDir}
 )
 
-#set(CMAKE_PREFIX_PATH "/usr/local/lib/cmake/glfw3/glfw3Config.cmake" ${CMAKE_PREFIX_PATH})
-#set(CMAKE_PREFIX_PATH "/usr/local/lib/cmake/glew/glew-config.cmake" ${CMAKE_PREFIX_PATH})
-set (CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}/dependencies" ${CMAKE_PREFIX_PATH})
+set(CMAKE_PREFIX_PATH "/usr/local/lib/cmake/glfw3/glfw3Config.cmake" ${CMAKE_PREFIX_PATH})
+set(CMAKE_PREFIX_PATH "/usr/local/lib/cmake/glew/glew-config.cmake" ${CMAKE_PREFIX_PATH})
 find_package(glfw3 REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(OpenGL REQUIRED)
