@@ -13,13 +13,24 @@ set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${FullOutputDir}/static libs")
 set (CMAKE_LIBRARY_OUTPUT_DIRECTORY "${FullOutputDir}")
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY "${FullOutputDir}")
 
+# Path to the shaders folder relative to CMakeLists.txt
+set(SHADER_DIR "${CMAKE_CURRENT_SOURCE_DIR}/shaders")
+
+# Copy the entire shaders folder to the build directory
+file(COPY ${SHADER_DIR} DESTINATION ${CMAKE_BINARY_DIR})
+
 set_target_properties(app PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${FullOutputDir}
 )
 
-#set(CMAKE_PREFIX_PATH "/usr/local/lib/cmake/glfw3/glfw3Config.cmake" ${CMAKE_PREFIX_PATH})
-#set(CMAKE_PREFIX_PATH "/usr/local/lib/cmake/glew/glew-config.cmake" ${CMAKE_PREFIX_PATH})
-set (CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}/dependencies" ${CMAKE_PREFIX_PATH})
+include_directories(${CMAKE_SOURCE_DIR}/include)
+
+add_library(my_library SHARED
+    src/shaders.cpp
+)
+
+set(CMAKE_PREFIX_PATH "/usr/local/lib/cmake/glfw3/glfw3Config.cmake" ${CMAKE_PREFIX_PATH})
+set(CMAKE_PREFIX_PATH "/usr/local/lib/cmake/glew/glew-config.cmake" ${CMAKE_PREFIX_PATH})
 find_package(glfw3 REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(OpenGL REQUIRED)
@@ -28,3 +39,4 @@ target_link_libraries(app PRIVATE glfw3)
 target_link_libraries(app PRIVATE glfw3 dl)
 target_link_libraries(app PRIVATE glfw3 ${OPENGL_LIBRARIES} pthread)
 target_link_libraries(app PRIVATE GLEW::GLEW)
+target_link_libraries(app PRIVATE my_library)
