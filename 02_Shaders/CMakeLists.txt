@@ -13,12 +13,6 @@ set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${FullOutputDir}/static libs")
 set (CMAKE_LIBRARY_OUTPUT_DIRECTORY "${FullOutputDir}")
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY "${FullOutputDir}")
 
-# Path to the shaders folder relative to CMakeLists.txt
-set(SHADER_DIR "${CMAKE_CURRENT_SOURCE_DIR}/shaders")
-
-# Copy the entire shaders folder to the build directory
-file(COPY ${SHADER_DIR} DESTINATION ${CMAKE_BINARY_DIR})
-
 set_target_properties(app PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${FullOutputDir}
 )

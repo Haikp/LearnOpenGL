@@ -8,7 +8,7 @@
 *.bak
 
 # Ignore build artifacts
-/build/
+**/build/
 /bin/
 /dist/
 *.o
