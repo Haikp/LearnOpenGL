@@ -13,11 +13,27 @@ set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${FullOutputDir}/static libs")
 set (CMAKE_LIBRARY_OUTPUT_DIRECTORY "${FullOutputDir}")
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY "${FullOutputDir}")
 
+# shortcut for textures folder
+file(GLOB TEXTURE_FILES ${CMAKE_SOURCE_DIR}/textures/*)
+
+foreach(TEXTURE ${TEXTURE_FILES})
+    add_custom_command(
+        OUTPUT ${CMAKE_BINARY_DIR}/$(notdir ${TEXTURE})
+        COMMAND ${CMAKE_COMMAND} -E copy ${TEXTURE} ${CMAKE_BINARY_DIR}
+        DEPENDS ${TEXTURE}
+    )
+endforeach()
+
+add_custom_target(copy_textures ALL DEPENDS ${TEXTURE_FILES})
+add_dependencies(app copy_textures)
+
 set_target_properties(app PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${FullOutputDir}
 )
 
 include_directories(${CMAKE_SOURCE_DIR}/../include)
+#include_directories(${CMAKE_SOURCE_DIR}/../dependencies/stb)
+add_subdirectory(${CMAKE_SOURCE_DIR}/../dependencies/stb ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY})
 
 add_library(my_library SHARED
     ../src/shaders.cpp
@@ -34,3 +50,4 @@ target_link_libraries(app PRIVATE glfw3 dl)
 target_link_libraries(app PRIVATE glfw3 ${OPENGL_LIBRARIES} pthread)
 target_link_libraries(app PRIVATE GLEW::GLEW)
 target_link_libraries(app PRIVATE my_library)
+target_link_libraries(app PRIVATE stb)

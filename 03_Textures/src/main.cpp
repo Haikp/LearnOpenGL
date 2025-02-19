@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include "shaders.h"
 
+#include <stb_image.h>
+
 void processInput(GLFWwindow*);
 
 const char* path_to_vertex_shader = "03_Textures/shaders/vertex_shader.glsl";
@@ -42,14 +44,15 @@ int main(void)
 
     // establish vertices of geometry
     float vertices1[] = {
-        //coordinates        //color              //texture coordinates
-         0.0f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  0.5f,  1.0f,
-        -0.5f, -0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  0.0f,  0.0f,
-         0.5f, -0.5f,  0.0f,  0.0f,  0.0f,  1.0f,  1.0f,  0.0f
+        // positions          // colors           // texture coords
+         0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
+         0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
+        -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
+        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left
     };
-
     unsigned int indices1[] = {
-        0, 1, 2
+        0, 1, 2,
+        0, 2, 3
     };
 
     unsigned int VAO1; //create the object that will store references to attributes for shader usage
@@ -79,7 +82,19 @@ int main(void)
     Shader shaderProgram(path_to_vertex_shader, path_to_fragment_shader);
     shaderProgram.use();
 
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    int width, height, nrChannels;
+    unsigned char *data = stbi_load("03_Textures/textures/container.jpg", &width, &height, &nrChannels, 0);
+
+    unsigned int texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    stbi_image_free(data);
+
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
     glClearColor(.0f, .8f, .5f, 1.0f);
 
