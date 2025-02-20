@@ -50,10 +50,10 @@ int main(void)
     // establish vertices of geometry
     float vertices1[] = {
         // positions          // colors           // texture coords
-         0.5f,  0.5f,  0.0f,   1.0f,  0.0f,  0.0f,   1.0f,  1.0f,   // top right
-         0.5f, -0.5f,  0.0f,   0.0f,  1.0f,  0.0f,   1.0f,  0.0f,   // bottom right
-        -0.5f, -0.5f,  0.0f,   0.0f,  0.0f,  1.0f,   0.0f,  0.0f,   // bottom left
-        -0.5f,  0.5f,  0.0f,   1.0f,  1.0f,  0.0f,   0.0f,  1.0f    // top left
+         0.5f,  0.5f,  0.0f,   1.0f,  0.0f,  0.0f,   0.6f,  0.6f,   // top right
+         0.5f, -0.5f,  0.0f,   0.0f,  1.0f,  0.0f,   0.6f,  0.4f,   // bottom right
+        -0.5f, -0.5f,  0.0f,   0.0f,  0.0f,  1.0f,   0.4f,  0.4f,   // bottom left
+        -0.5f,  0.5f,  0.0f,   1.0f,  1.0f,  0.0f,   0.4f,  0.6f    // top left
     };
     unsigned int indices1[] = {
         0, 1, 2,
@@ -90,10 +90,6 @@ int main(void)
     unsigned int tex0, tex1;
     glGenTextures(1, &tex0);
     glBindTexture(GL_TEXTURE_2D, tex0);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     int width, height, nrChannels;
     unsigned char *data = stbi_load((path_to_textures + "container.jpg").c_str(), &width, &height, &nrChannels, 0);
@@ -107,15 +103,15 @@ int main(void)
     {
         std::cerr << "Failed to load image0." << std::endl;
     }
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     stbi_image_free(data);
 
     glGenTextures(1, &tex1);
     glBindTexture(GL_TEXTURE_2D, tex1);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     data = stbi_load((path_to_textures + "awesomeface.png").c_str(), &width, &height, &nrChannels, 0);
     if (data)
@@ -127,25 +123,37 @@ int main(void)
     {
         std::cerr << "Failed to load image1." << std::endl;
     }
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     stbi_image_free(data);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, tex0);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, tex1);
 
     shaderProgram.setInt("tex0", 0);
     shaderProgram.setInt("tex1", 1);
 
+    float transparency = 0.0f;
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
         processInput(window);
 
+        shaderProgram.setFloat("transparency", transparency);
+        if(glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+            transparency += .01;
+
+        if(glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+            transparency -= .01;
+
         glClearColor(.2f, .3f, .3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, tex0);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, tex1);
 
  //       shaderProgram.use();
  //       glBindVertexArray(VAO1);
@@ -167,4 +175,5 @@ void processInput(GLFWwindow *window)
 {
     if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+
 }
