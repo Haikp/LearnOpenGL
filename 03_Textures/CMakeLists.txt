@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.20)
 project(test_project VERSION 0.1.0)
 
+add_definitions(-DSHADER_PATH=${CMAKE_SOURCE_DIR}/shaders/)
+add_definitions(-DTEXTURE_PATH=${CMAKE_SOURCE_DIR}/textures/)
+
 add_executable(app src/main.cpp)
 
 set(OSBitness 32)
@@ -12,20 +15,6 @@ set (FullOutputDir "${CMAKE_SOURCE_DIR}/build/bin/${CMAKE_SYSTEM_NAME}${OSBitnes
 set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${FullOutputDir}/static libs")
 set (CMAKE_LIBRARY_OUTPUT_DIRECTORY "${FullOutputDir}")
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY "${FullOutputDir}")
-
-# shortcut for textures folder
-file(GLOB TEXTURE_FILES ${CMAKE_SOURCE_DIR}/textures/*)
-
-foreach(TEXTURE ${TEXTURE_FILES})
-    add_custom_command(
-        OUTPUT ${CMAKE_BINARY_DIR}/$(notdir ${TEXTURE})
-        COMMAND ${CMAKE_COMMAND} -E copy ${TEXTURE} ${CMAKE_BINARY_DIR}
-        DEPENDS ${TEXTURE}
-    )
-endforeach()
-
-add_custom_target(copy_textures ALL DEPENDS ${TEXTURE_FILES})
-add_dependencies(app copy_textures)
 
 set_target_properties(app PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${FullOutputDir}
