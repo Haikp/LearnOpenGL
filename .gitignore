@@ -35,6 +35,7 @@ src/app
 # Ignore dependencies
 /vendor/
 /dependencies/
+!/dependencies/**/CMakeLists.txt
 test/
 
 #ignore graphical config
