@@ -1,2 +1,4 @@
 # Contents of this Branch
 Quickly taking a quick glance over the module involving transformations, there seems to be where reviewing linear algebra will be necessary. To do so, I will be watch through the entirety of 3b1b's entire series. I have taken linear algebra before, so this should be more of a review than anything.
+
+Day 2 of going through the 3b1b linear algebra series, I am definitely learning a lot more, especially intended meaning(?) of the values rather than blindly doing the computations correctly. I'm sure this is something that I'll have to do eventually, and the computational part should be done by computers and not me. The amount of time spent here will be worth it, I'm sure. Unfortunately though there doesn't seem to be too many videos left. As I'm typing this out, I am on lecture 11/15. They are short, however many of them are worth rewatching for a better understanding, as well as conducting a bit of research to confirm my understanding.
