@@ -8,6 +8,9 @@
 #define TOSTRING(x) STRINGIFY(x)
 
 #include <stb_image.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 void processInput(GLFWwindow*);
 
@@ -50,10 +53,10 @@ int main(void)
     // establish vertices of geometry
     float vertices1[] = {
         // positions          // colors           // texture coords
-         0.5f,  0.5f,  0.0f,   1.0f,  0.0f,  0.0f,   0.6f,  0.6f,   // top right
-         0.5f, -0.5f,  0.0f,   0.0f,  1.0f,  0.0f,   0.6f,  0.4f,   // bottom right
-        -0.5f, -0.5f,  0.0f,   0.0f,  0.0f,  1.0f,   0.4f,  0.4f,   // bottom left
-        -0.5f,  0.5f,  0.0f,   1.0f,  1.0f,  0.0f,   0.4f,  0.6f    // top left
+         0.5f,  0.5f,  0.0f,   1.0f,  0.0f,  0.0f,   1.0f,  1.0f,   // top right
+         0.5f, -0.5f,  0.0f,   0.0f,  1.0f,  0.0f,   1.0f,  0.0f,   // bottom right
+        -0.5f, -0.5f,  0.0f,   0.0f,  0.0f,  1.0f,   0.0f,  0.0f,   // bottom left
+        -0.5f,  0.5f,  0.0f,   1.0f,  1.0f,  0.0f,   0.0f,  1.0f    // top left
     };
     unsigned int indices1[] = {
         0, 1, 2,
@@ -137,6 +140,12 @@ int main(void)
 
     shaderProgram.setInt("tex0", 0);
     shaderProgram.setInt("tex1", 1);
+
+    glm::mat4 trans = glm::mat4(1.0f); //identity matrix, generic matrix that will represent out transformation
+    trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    trans = glm::scale(trans, glm::vec3(0.5f, 0.5f, 0.5f));
+
+    shaderProgram.setMat4("transform", trans);
 
     float transparency = 0.0f;
 

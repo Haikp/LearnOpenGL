@@ -117,3 +117,13 @@ void Shader::setFloat(const std::string &name, float value) const
     glUniform1f(location, value);
 }
 
+void Shader::setMat4(const std::string &name, const glm::mat4 &mat) const
+{
+    GLint location = glGetUniformLocation(ID, name.c_str());
+    if (location == -1) {
+        std::cerr << "ERROR::UNIFORM::" << name << "::NOT_FOUND\n";
+        return;
+    }
+
+    glUniformMatrix4fv(location, 1, GL_FALSE, &mat[0][0]);
+}

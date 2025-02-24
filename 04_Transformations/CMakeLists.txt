@@ -22,7 +22,8 @@ set_target_properties(app PROPERTIES
 
 include_directories(${CMAKE_SOURCE_DIR}/../include)
 #include_directories(${CMAKE_SOURCE_DIR}/../dependencies/stb)
-add_subdirectory(${CMAKE_SOURCE_DIR}/../dependencies/stb ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY})
+add_subdirectory(${CMAKE_SOURCE_DIR}/../dependencies/stb ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}/stb)
+add_subdirectory(${CMAKE_SOURCE_DIR}/../dependencies/glm ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}/glm)
 
 add_library(my_library SHARED
     ../src/shaders.cpp
@@ -40,3 +41,4 @@ target_link_libraries(app PRIVATE glfw3 ${OPENGL_LIBRARIES} pthread)
 target_link_libraries(app PRIVATE GLEW::GLEW)
 target_link_libraries(app PRIVATE my_library)
 target_link_libraries(app PRIVATE stb)
+target_link_libraries(app PRIVATE glm)
