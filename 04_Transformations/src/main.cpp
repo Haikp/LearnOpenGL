@@ -2,6 +2,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <stdio.h>
+#include <cmath>
 #include "shaders.h"
 
 #define STRINGIFY(x) #x
@@ -32,7 +33,7 @@ int main(void)
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(640, 480, "LearnOpenGL", NULL, NULL);
+    window = glfwCreateWindow(1080, 720, "LearnOpenGL", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -141,13 +142,7 @@ int main(void)
     shaderProgram.setInt("tex0", 0);
     shaderProgram.setInt("tex1", 1);
 
-    glm::mat4 trans = glm::mat4(1.0f); //identity matrix, generic matrix that will represent out transformation
-    trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-    trans = glm::scale(trans, glm::vec3(0.5f, 0.5f, 0.5f));
-
-    shaderProgram.setMat4("transform", trans);
-
-    float transparency = 0.0f;
+    float transparency = 0.3f;
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
@@ -164,8 +159,22 @@ int main(void)
         glClearColor(.2f, .3f, .3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
- //       shaderProgram.use();
- //       glBindVertexArray(VAO1);
+        glm::mat4 trans = glm::mat4(1.0f); //identity matrix, generic matrix that will represent out transformation
+        //trans = glm::translate(trans, glm:: vec3(.5f, 0.0f, 0.0f));
+        //shaderProgram.setMat4("transform", trans);
+
+        //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+        float timeSinceStart = glfwGetTime();
+        float sin = std::sin(timeSinceStart);
+        float cos = std::cos(timeSinceStart);
+
+        trans = glm::translate(trans, glm::vec3(sin/10, cos/10, 0.0f));
+        trans = glm::scale(trans, glm::vec3(sin));
+        trans = glm::rotate(trans, sin, glm::vec3(1.0f, 1.0f, 0.0f));
+        trans = glm::rotate(trans, cos, glm::vec3(0.0f, 0.0f, 1.0f));
+        shaderProgram.setMat4("transform", trans);
+
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         glfwSwapBuffers(window);

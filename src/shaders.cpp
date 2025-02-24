@@ -117,6 +117,61 @@ void Shader::setFloat(const std::string &name, float value) const
     glUniform1f(location, value);
 }
 
+void Shader::setVec2(const std::string &name, const glm::vec2 &vec) const
+{
+    GLint location = glGetUniformLocation(ID, name.c_str());
+    if (location == -1) {
+        std::cerr << "ERROR::UNIFORM::" << name << "::NOT_FOUND\n";
+        return;
+    }
+
+    glUniform2fv(location, 1, &vec[0]);
+}
+
+void Shader::setVec3(const std::string &name, const glm::vec3 &vec) const
+{
+    GLint location = glGetUniformLocation(ID, name.c_str());
+    if (location == -1) {
+        std::cerr << "ERROR::UNIFORM::" << name << "::NOT_FOUND\n";
+        return;
+    }
+
+    glUniform3fv(location, 1, &vec[0]);
+}
+
+void Shader::setVec4(const std::string &name, const glm::vec4 &vec) const
+{
+    GLint location = glGetUniformLocation(ID, name.c_str());
+    if (location == -1) {
+        std::cerr << "ERROR::UNIFORM::" << name << "::NOT_FOUND\n";
+        return;
+    }
+
+    glUniform4fv(location, 1, &vec[0]);
+}
+
+void Shader::setMat2(const std::string &name, const glm::mat2 &mat) const
+{
+    GLint location = glGetUniformLocation(ID, name.c_str());
+    if (location == -1) {
+        std::cerr << "ERROR::UNIFORM::" << name << "::NOT_FOUND\n";
+        return;
+    }
+
+    glUniformMatrix2fv(location, 1, GL_FALSE, &mat[0][0]);
+}
+
+void Shader::setMat3(const std::string &name, const glm::mat3 &mat) const
+{
+    GLint location = glGetUniformLocation(ID, name.c_str());
+    if (location == -1) {
+        std::cerr << "ERROR::UNIFORM::" << name << "::NOT_FOUND\n";
+        return;
+    }
+
+    glUniformMatrix3fv(location, 1, GL_FALSE, &mat[0][0]);
+}
+
 void Shader::setMat4(const std::string &name, const glm::mat4 &mat) const
 {
     GLint location = glGetUniformLocation(ID, name.c_str());
