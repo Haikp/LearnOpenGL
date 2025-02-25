@@ -1,0 +1,5 @@
+# Contents of this Branch
+## Not finished yet, just thoughts on the module
+Cameras feels like its quite a big stepping point in OpenGL, and I do think its one of the more exciting modules being that I get to finally "interact" with what I've created. However, I feel like I should take the time to brush up on geometry again.
+
+Theres a point in the module where we make the camera rotate in a circle, looking at the world space origin. The code in itself is straight forward, but I really struggled with trying to understand how the x axis moving along the values of sine and the z axis moving along the values of cos would result in a circle. This seems like something thats very simple, but I simply forgot about it. Haven't touched geometry in years. If I'm having a hard time with this, I should probably review a bit before continuing. This really shouldn't take too long unlike how I spent a few days with linear algebra since I was fairly confident in my geomtry skills years ago, but who knows something might go wrong in reviewing.
