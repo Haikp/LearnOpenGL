@@ -14,11 +14,27 @@
 #include <glm/gtc/type_ptr.hpp>
 
 void processInput(GLFWwindow*);
+void mouse_callback(GLFWwindow*, double, double);
+void scroll_callback(GLFWwindow*, double, double);
 
 //just for dynamic purposes for future projects
 std::string path_to_vertex_shader = std::string(TOSTRING(SHADER_PATH)) + "vertex_shader.glsl";
 std::string path_to_fragment_shader = std::string(TOSTRING(SHADER_PATH)) + "fragment_shader.glsl";
 std::string path_to_textures = std::string(TOSTRING(TEXTURE_PATH));
+
+const int xWindowSize = 1080;
+const int yWindowSize = 720;
+
+bool firstMouse = true;
+float lastX = xWindowSize/2, lastY = yWindowSize/2;
+float yaw = 0.0f;
+float pitch = 0.0f;
+
+glm::vec3 cameraPosition = glm::vec3(0.0f, 0.0f, 3.0f);
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 cameraOrientiation = glm::vec3(0.0f, 1.0f, 0.0f);
+
+float fov = 45.0f;
 
 int main(void)
 {
@@ -31,9 +47,6 @@ int main(void)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-    const int xWindowSize = 1080;
-    const int yWindowSize = 720;
 
     /* Create a windowed mode window and its OpenGL context */
     window = glfwCreateWindow(xWindowSize, yWindowSize, "LearnOpenGL", NULL, NULL);
@@ -183,9 +196,6 @@ int main(void)
     shaderProgram.setInt("tex0", 0);
     shaderProgram.setInt("tex1", 1);
 
-    glm::mat4 projection = glm::perspective(glm::radians(45.0f), ((float)xWindowSize / (float)yWindowSize), 0.1f, 100.0f);
-    shaderProgram.setMat4("projection", projection);
-
     glm::vec3 cubePositions[] = {
         glm::vec3( 0.0f,  0.0f,  0.0f),
         glm::vec3( 2.0f,  5.0f, -15.0f),
@@ -202,10 +212,42 @@ int main(void)
     glEnable(GL_DEPTH_TEST);
     float transparency = 0.3f;
 
+    float deltaTime = 0.0f;
+    float lastFrame = 0.0f;
+
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
         processInput(window);
+
+        glm::mat4 projection = glm::perspective(glm::radians(fov), ((float)xWindowSize / (float)yWindowSize), 0.1f, 100.0f);
+        shaderProgram.setMat4("projection", projection);
+
+        glm::mat4 view = glm::mat4(1.0f);
+
+        view = glm::lookAt(cameraPosition, cameraPosition + cameraFront, cameraOrientiation);
+        shaderProgram.setMat4("view", view);
+
+        float currentFrame = glfwGetTime();
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
+
+        float cameraSpeed = 2.5f * deltaTime;
+
+        if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+            cameraPosition += cameraSpeed * cameraFront;
+        if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+            cameraPosition -= glm::normalize(glm::cross(cameraFront, cameraOrientiation)) * cameraSpeed;
+        if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+            cameraPosition -= cameraSpeed * cameraFront;
+        if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+            cameraPosition += glm::normalize(glm::cross(cameraFront, cameraOrientiation)) * cameraSpeed;
+
+        //camera rotation via mouse
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+        glfwSetCursorPosCallback(window, mouse_callback);
+        glfwSetScrollCallback(window, scroll_callback);
 
         shaderProgram.setFloat("transparency", transparency);
         if(glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
@@ -218,23 +260,6 @@ int main(void)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         float timeSinceStart = glfwGetTime();
-        float sin = std::asin(std::sin(timeSinceStart));
-        float cos = std::acos(std::cos(timeSinceStart));
-
-        glm::lookAt(glm::vec3(0.0f, 0.0f, 3.0f),
-                    glm::vec3(0.0f, 0.0f, 0.0f),
-                    glm::vec3(0.0f, 1.0f, 0.0f));
-
-        float radius = 10.0f;
-        float camX = std::sin(timeSinceStart) * radius;
-        float camY = std::cos(timeSinceStart) * 5.0f;
-        float camZ = std::cos(timeSinceStart) * radius;
-
-        glm::mat4 view = glm::lookAt(glm::vec3(camX, camY, camZ),
-                                     glm::vec3(0.0f, 0.0f, 0.0f),
-                                     glm::vec3(0.0f, 1.0f, 0.0f));
-
-        shaderProgram.setMat4("view", view);
 
         for (int i = 0; i < 10; i++)
         {
@@ -277,5 +302,53 @@ void processInput(GLFWwindow *window)
 {
     if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+}
 
+void mouse_callback(GLFWwindow* window, double xpos, double ypos)
+{
+    if(firstMouse)
+    {
+        lastX = xpos;
+        lastY = ypos;
+        firstMouse = false;
+    }
+
+    float xoffset = xpos - lastX;
+    float yoffset = lastY - ypos;
+    lastX = xpos;
+    lastY = ypos;
+
+    const float sens = 0.1f;
+    xoffset *= sens;
+    yoffset *= sens;
+
+    //yaw involves rotating around the y axis, looking left and right
+    //this means that to understand how this axis rotates, we must look top down from the y axis
+    //in a rotation in this case, we can see that the xaxis is affected by the cos(yaw), while the yaxis is affected by the sin(yaw), more explanation in the README.md
+    //pitch involves rotations around the x axis to look up and down
+    // in the module, this seem to include both x and z axis as part of the pitch? not sure why but will test later
+    yaw += xoffset;
+    pitch += yoffset;
+
+    if(pitch > 89.0f)
+      pitch =  89.0f;
+    if(pitch < -89.0f)
+      pitch = -89.0f;
+
+    glm::vec3 direction;
+    //the reason we have cos(pitch) is to exclude the movement of looking down with your head, and looking to the right/left
+        //yaw allows us to look left and right, and pitch makes us look up and down. if we look down, we cannot look left and right, or else a lot of problems could ensue. this probably goes for the z axis as well.
+    direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+    direction.y = sin(glm::radians(pitch));
+    direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+    cameraFront = glm::normalize(direction);
+}
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    fov -= (float)yoffset;
+    if (fov < 1.0f)
+        fov = 1.0f;
+    if (fov > 45.0f)
+        fov = 45.0f;
 }
