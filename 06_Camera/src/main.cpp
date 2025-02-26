@@ -16,6 +16,7 @@
 void processInput(GLFWwindow*);
 void mouse_callback(GLFWwindow*, double, double);
 void scroll_callback(GLFWwindow*, double, double);
+glm::mat4 myLookAt(glm::vec3, glm::vec3, glm::vec3);
 
 //just for dynamic purposes for future projects
 std::string path_to_vertex_shader = std::string(TOSTRING(SHADER_PATH)) + "vertex_shader.glsl";
@@ -30,7 +31,7 @@ float lastX = xWindowSize/2, lastY = yWindowSize/2;
 float yaw = 0.0f;
 float pitch = 0.0f;
 
-glm::vec3 cameraPosition = glm::vec3(0.0f, 0.0f, 3.0f);
+glm::vec3 cameraPosition = glm::vec3(0.0f, 0.0f, 10.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraOrientiation = glm::vec3(0.0f, 1.0f, 0.0f);
 
@@ -225,23 +226,26 @@ int main(void)
 
         glm::mat4 view = glm::mat4(1.0f);
 
-        view = glm::lookAt(cameraPosition, cameraPosition + cameraFront, cameraOrientiation);
+        view = myLookAt(cameraPosition, cameraPosition + cameraFront, cameraOrientiation);
         shaderProgram.setMat4("view", view);
 
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
+        //to stay on xz plane is to probably just force the y axis of the front facing camera to be 0 at all times in a new vec3, and use that instead
+        glm::vec3 xzPlane = glm::normalize(glm::vec3(cameraFront.x, 0.0f, cameraFront.z));
+
         float cameraSpeed = 2.5f * deltaTime;
 
         if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-            cameraPosition += cameraSpeed * cameraFront;
+            cameraPosition += cameraSpeed * xzPlane;
         if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-            cameraPosition -= glm::normalize(glm::cross(cameraFront, cameraOrientiation)) * cameraSpeed;
+            cameraPosition -= glm::normalize(glm::cross(xzPlane, cameraOrientiation)) * cameraSpeed;
         if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-            cameraPosition -= cameraSpeed * cameraFront;
+            cameraPosition -= cameraSpeed * xzPlane;
         if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-            cameraPosition += glm::normalize(glm::cross(cameraFront, cameraOrientiation)) * cameraSpeed;
+            cameraPosition += glm::normalize(glm::cross(xzPlane, cameraOrientiation)) * cameraSpeed;
 
         //camera rotation via mouse
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -351,4 +355,40 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
         fov = 1.0f;
     if (fov > 45.0f)
         fov = 45.0f;
+}
+
+//keep in mind that in there should be no matrix computations to be done here, rather we are just trying to create a view matrix based on inputted values
+//at this point in the code, the rotation as been done already, its just a matter of placing it in the correct orientation.
+glm::mat4 myLookAt(glm::vec3 cameraPosition, glm::vec3 cameraFront, glm::vec3 cameraUp)
+{
+    // Compute the forward vector
+    glm::vec3 forward = glm::normalize(cameraPosition - cameraFront);
+
+    // Compute the right vector
+    glm::vec3 right = glm::normalize(glm::cross(glm::normalize(cameraUp), forward));
+
+    // Compute the actual up vector
+    glm::vec3 up = glm::cross(forward, right);
+
+    // Construct the view matrix manually
+    // TO NOTE, THIS IS COLUMN MAJOR, MEANING FOLLOWING WHAT YOU LEARNED IN MATH, first index is row, second index is column, matrix vector mult is matrix * vector still
+    // view [row][column]
+    // read "going down the column"
+    glm::mat4 view = glm::mat4(1.0f);
+    view[0][0] = right.x;
+    view[1][0] = right.y;
+    view[2][0] = right.z;
+    view[3][0] = -glm::dot(right, cameraPosition);
+
+    view[0][1] = up.x;
+    view[1][1] = up.y;
+    view[2][1] = up.z;
+    view[3][1] = -glm::dot(up, cameraPosition);
+
+    view[0][2] = forward.x;
+    view[1][2] = forward.y;
+    view[2][2] = forward.z;
+    view[3][2] = -glm::dot(forward, cameraPosition);
+
+    return view;
 }

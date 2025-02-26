@@ -26,3 +26,7 @@ Moving on to pitch, this essentially represents our camera looking up and down. 
 With this module completed, this now marks the end of OpenGL basics. The next step would to now be head towards lighting, however I may try to create some project first before hand just to hammer in the entire workflow of OpenGL.
 
 I do need to create libraries more libraries to make things move along faster, but perhaps I should try to code without libraries first? I'm not sure, but I'll get something done before moving on to lighting.
+
+Next Day: I will create a general workflow for low level OpenGL, then I'll create the libraries from scratch. First and foremost though, I will complete this module's exercise.
+
+Exercise completed, annoyed by row major vs column major.
