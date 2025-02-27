@@ -21,12 +21,12 @@ set_target_properties(app PROPERTIES
 )
 
 include_directories(${CMAKE_SOURCE_DIR}/../include)
-#include_directories(${CMAKE_SOURCE_DIR}/../dependencies/stb)
 add_subdirectory(${CMAKE_SOURCE_DIR}/../dependencies/stb ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}/stb)
 add_subdirectory(${CMAKE_SOURCE_DIR}/../dependencies/glm ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}/glm)
 
 add_library(my_library SHARED
     ../src/shaders.cpp
+    ../src/mesh.cpp
 )
 
 set(CMAKE_PREFIX_PATH "/usr/local/lib/cmake/glfw3/glfw3Config.cmake" ${CMAKE_PREFIX_PATH})

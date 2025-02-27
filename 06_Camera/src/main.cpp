@@ -3,7 +3,9 @@
 #include <GLFW/glfw3.h>
 #include <stdio.h>
 #include <cmath>
+#include <vector>
 #include "shaders.h"
+#include "mesh.h"
 
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
@@ -69,7 +71,7 @@ int main(void)
     }
 
     // establish vertices of geometry
-    float vertices[] = {
+    std::vector<float> vertices = {
         //vertices            //texture coordinates
         -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
          0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
@@ -114,32 +116,23 @@ int main(void)
         -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
     };
 
-    unsigned int indices[36]; //= { 0, 1, 2, 3, 4, 5};
+    std::vector<unsigned int> indices;
 
     for (int i = 0; i < 36; i++)
     {
-        indices[i] = i;
+        indices.push_back(i);
     }
 
-    unsigned int VAO1; //create the object that will store references to attributes for shader usage
-    glGenVertexArrays(1, &VAO1);
-    glBindVertexArray(VAO1);
+    Mesh mesh; //creates and generates 1 buffer for VAO, VBO, and EBO
+    mesh.Bind(); //binds all 3
+    //insert data accordingly
+    mesh.VBO.BufferData(vertices);
+    mesh.EBO.BufferData(indices);
 
-    // create a vertex buffer array
-    unsigned int VBO1; // location where we will store info about the vertex buffer
-    glGenBuffers(1, &VBO1); // specify that we want to allocate 1 buffer
-    glBindBuffer(GL_ARRAY_BUFFER, VBO1); // notify OpenGL that the array buffer is in use
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); // place the array of values into the buffer
-
-    unsigned int EBO1;
-    glGenBuffers(1, &EBO1);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO1);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0); // tells OpenGL how to read the buffer we sent properly
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float))); // tells OpenGL how to read the buffer we sent properly
-    glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
+    //on to attrib pointer
+    mesh.SetAttribStride(5);
+    mesh.LinkAttrib(3);
+    mesh.LinkAttrib(2);
 
     //compile shaders
     Shader shaderProgram(path_to_vertex_shader.c_str(), path_to_fragment_shader.c_str());
@@ -294,9 +287,8 @@ int main(void)
         glfwPollEvents();
     }
 
-    glDeleteVertexArrays(1, &VAO1);
-    glDeleteBuffers(1, &VBO1);
-    glDeleteBuffers(1, &EBO1);
+    mesh.Unbind();
+    mesh.Delete();
 
     glfwTerminate();
     return 0;
