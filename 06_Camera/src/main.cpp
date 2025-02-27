@@ -6,6 +6,7 @@
 #include <vector>
 #include "shaders.h"
 #include "mesh.h"
+#include "camera.h"
 
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)

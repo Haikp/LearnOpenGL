@@ -27,6 +27,7 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/../dependencies/glm ${CMAKE_ARCHIVE_OUTPUT_
 add_library(my_library SHARED
     ../src/shaders.cpp
     ../src/mesh.cpp
+    ../src/camera.cpp
 )
 
 set(CMAKE_PREFIX_PATH "/usr/local/lib/cmake/glfw3/glfw3Config.cmake" ${CMAKE_PREFIX_PATH})
