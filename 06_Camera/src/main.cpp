@@ -17,7 +17,6 @@
 #include <glm/gtc/type_ptr.hpp>
 
 void processInput(GLFWwindow*);
-void mouse_callback(GLFWwindow*, double, double);
 void scroll_callback(GLFWwindow*, double, double);
 glm::mat4 myLookAt(glm::vec3, glm::vec3, glm::vec3);
 
@@ -28,15 +27,6 @@ std::string path_to_textures = std::string(TOSTRING(TEXTURE_PATH));
 
 const int xWindowSize = 1080;
 const int yWindowSize = 720;
-
-bool firstMouse = true;
-float lastX = xWindowSize/2, lastY = yWindowSize/2;
-float yaw = 0.0f;
-float pitch = 0.0f;
-
-glm::vec3 cameraPosition = glm::vec3(0.0f, 0.0f, 10.0f);
-glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-glm::vec3 cameraOrientiation = glm::vec3(0.0f, 1.0f, 0.0f);
 
 float fov = 45.0f;
 
@@ -207,8 +197,11 @@ int main(void)
     glEnable(GL_DEPTH_TEST);
     float transparency = 0.3f;
 
-    float deltaTime = 0.0f;
-    float lastFrame = 0.0f;
+    glm::vec3 cameraPosition = glm::vec3(0.0f, 0.0f, 10.0f);
+    glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+    glm::vec3 cameraOrientiation = glm::vec3(0.0f, 1.0f, 0.0f);
+
+    Camera camera(cameraPosition, cameraFront, cameraOrientiation, xWindowSize, yWindowSize);
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
@@ -218,33 +211,13 @@ int main(void)
         glm::mat4 projection = glm::perspective(glm::radians(fov), ((float)xWindowSize / (float)yWindowSize), 0.1f, 100.0f);
         shaderProgram.setMat4("projection", projection);
 
-        glm::mat4 view = glm::mat4(1.0f);
+        camera.TakeInputs(window);
 
-        view = myLookAt(cameraPosition, cameraPosition + cameraFront, cameraOrientiation);
-        shaderProgram.setMat4("view", view);
-
-        float currentFrame = glfwGetTime();
-        deltaTime = currentFrame - lastFrame;
-        lastFrame = currentFrame;
-
-        //to stay on xz plane is to probably just force the y axis of the front facing camera to be 0 at all times in a new vec3, and use that instead
-        glm::vec3 xzPlane = glm::normalize(glm::vec3(cameraFront.x, 0.0f, cameraFront.z));
-
-        float cameraSpeed = 2.5f * deltaTime;
-
-        if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-            cameraPosition += cameraSpeed * xzPlane;
-        if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-            cameraPosition -= glm::normalize(glm::cross(xzPlane, cameraOrientiation)) * cameraSpeed;
-        if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-            cameraPosition -= cameraSpeed * xzPlane;
-        if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-            cameraPosition += glm::normalize(glm::cross(xzPlane, cameraOrientiation)) * cameraSpeed;
+        shaderProgram.setMat4("view", camera.getViewMat());
 
         //camera rotation via mouse
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-        glfwSetCursorPosCallback(window, mouse_callback);
         glfwSetScrollCallback(window, scroll_callback);
 
         shaderProgram.setFloat("transparency", transparency);
@@ -297,48 +270,8 @@ int main(void)
 
 void processInput(GLFWwindow *window)
 {
-    if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+    if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
-}
-
-void mouse_callback(GLFWwindow* window, double xpos, double ypos)
-{
-    if(firstMouse)
-    {
-        lastX = xpos;
-        lastY = ypos;
-        firstMouse = false;
-    }
-
-    float xoffset = xpos - lastX;
-    float yoffset = lastY - ypos;
-    lastX = xpos;
-    lastY = ypos;
-
-    const float sens = 0.1f;
-    xoffset *= sens;
-    yoffset *= sens;
-
-    //yaw involves rotating around the y axis, looking left and right
-    //this means that to understand how this axis rotates, we must look top down from the y axis
-    //in a rotation in this case, we can see that the xaxis is affected by the cos(yaw), while the yaxis is affected by the sin(yaw), more explanation in the README.md
-    //pitch involves rotations around the x axis to look up and down
-    // in the module, this seem to include both x and z axis as part of the pitch? not sure why but will test later
-    yaw += xoffset;
-    pitch += yoffset;
-
-    if(pitch > 89.0f)
-      pitch =  89.0f;
-    if(pitch < -89.0f)
-      pitch = -89.0f;
-
-    glm::vec3 direction;
-    //the reason we have cos(pitch) is to exclude the movement of looking down with your head, and looking to the right/left
-        //yaw allows us to look left and right, and pitch makes us look up and down. if we look down, we cannot look left and right, or else a lot of problems could ensue. this probably goes for the z axis as well.
-    direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-    direction.y = sin(glm::radians(pitch));
-    direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-    cameraFront = glm::normalize(direction);
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)

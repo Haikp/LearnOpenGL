@@ -30,6 +30,9 @@ void Camera::TakeInputs(GLFWwindow* window)
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
 
+    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+        deltaTime *= 2;
+
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         cameraPosition += (cameraSpeed * deltaTime) * cameraForward;
     if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
@@ -38,6 +41,10 @@ void Camera::TakeInputs(GLFWwindow* window)
         cameraPosition -= (cameraSpeed * deltaTime) * cameraForward;
     if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         cameraPosition += glm::normalize(glm::cross(cameraForward, cameraUp)) * (cameraSpeed * deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+        cameraPosition += (cameraSpeed * deltaTime) * cameraUp;
+    if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+        cameraPosition -= (cameraSpeed * deltaTime) * cameraUp;
 
     view = glm::lookAt(cameraPosition, cameraPosition + cameraForward, cameraUp);
 }

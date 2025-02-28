@@ -9,7 +9,7 @@
 
 class Camera{
 public:
-    glm::mat4 view;
+    glm::mat4 view = glm::mat4(1.0f);
 
     Camera(glm::vec3, glm::vec3, glm::vec3, unsigned int, unsigned int);
     void TakeInputs(GLFWwindow*);
