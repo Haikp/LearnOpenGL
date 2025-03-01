@@ -215,9 +215,6 @@ int main(void)
 
         shaderProgram.setMat4("view", camera.getViewMat());
 
-        //camera rotation via mouse
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
         glfwSetScrollCallback(window, scroll_callback);
 
         shaderProgram.setFloat("transparency", transparency);

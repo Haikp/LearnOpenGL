@@ -22,6 +22,7 @@ private:
     static glm::vec3 cameraForward;
     static glm::vec3 cameraUp;
     static bool firstMouse;
+    static bool cameraActive;
     static float lastX;
     static float lastY;
     static float xoffset;
@@ -34,6 +35,7 @@ private:
     float currentFrame = 0.0f;
     float lastFrame = 0.0f;
     static void mouse_callback(GLFWwindow*, double, double);
+    static void mouse_button_callback(GLFWwindow*, int, int, int);
 };
 
 #endif
