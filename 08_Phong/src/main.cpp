@@ -139,10 +139,6 @@ int main(void)
 
     //set light color that will change the color of the object
     glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
-    glm::vec3 lightPos = glm::vec3(1.2f, 1.0f, 2.0f);
-
-    shaderProgram.setVec3("lightPos", lightPos);
-
     glEnable(GL_DEPTH_TEST);
 
     glm::vec3 cameraPosition = glm::vec3(0.0f, 0.0f, 10.0f);
@@ -167,12 +163,19 @@ int main(void)
 
         //begin rendering main cube
         glm::mat4 model = glm::mat4(1.0f);
-        model = glm::rotate(model, glm::radians(30.0f * (float)glfwGetTime()), glm::vec3(1.0f, 0.0f, 0.0f));
-        model = glm::rotate(model, glm::radians(70.0f * (float)glfwGetTime()), glm::vec3(0.0f, 1.0f, 0.0f));
 
         shaderProgram.use();
         shaderProgram.setVec3("objectColor", objectColor);
         shaderProgram.setVec3("lightColor", lightColor);
+        shaderProgram.setVec3("cameraPosition", camera.getPosition());
+
+        float radius = 5.0f;
+        float sin = std::sin(glm::radians(glfwGetTime() * 100)) * radius;
+        float cos = std::cos(glm::radians(glfwGetTime() * 100)) * radius;
+
+        glm::vec3 lightPos = glm::vec3(cos, sin, -10.0f);
+        shaderProgram.setVec3("lightPos", lightPos);
+
         shaderProgram.setMat4("projection", projection);
         shaderProgram.setMat4("view", camera.getViewMat());
         shaderProgram.setMat4("model", model);

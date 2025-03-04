@@ -57,6 +57,11 @@ glm::mat4 Camera::getViewMat()
     return view;
 }
 
+glm::vec3 Camera::getPosition()
+{
+    return cameraPosition;
+}
+
 void Camera::setMouseSens(float mouseSens)
 {
     this->mouseSens = mouseSens;
