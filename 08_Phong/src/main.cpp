@@ -134,11 +134,9 @@ int main(void)
     Shader lightingProgram(path_to_lighting_vertex_shader.c_str(), path_to_lighting_fragment_shader.c_str());
     shaderProgram.use();
 
-    //set the color of the objecti
+    //set the color of the object
     glm::vec3 objectColor = glm::vec3(1.0f, 0.5f, 0.31f);
 
-    //set light color that will change the color of the object
-    glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
     glEnable(GL_DEPTH_TEST);
 
     glm::vec3 cameraPosition = glm::vec3(0.0f, 0.0f, 10.0f);
@@ -165,16 +163,37 @@ int main(void)
         glm::mat4 model = glm::mat4(1.0f);
 
         shaderProgram.use();
-        shaderProgram.setVec3("objectColor", objectColor);
-        shaderProgram.setVec3("lightColor", lightColor);
+
+        shaderProgram.setVec3("objectColor", glm::vec3(1.0f));
         shaderProgram.setVec3("cameraPosition", camera.getPosition());
 
         float radius = 5.0f;
         float sin = std::sin(glm::radians(glfwGetTime() * 100)) * radius;
         float cos = std::cos(glm::radians(glfwGetTime() * 100)) * radius;
 
-        glm::vec3 lightPos = glm::vec3(cos, sin, -10.0f);
+        glm::vec3 lightPos = glm::vec3(0.0f, 10.0f, 10.0f);
         shaderProgram.setVec3("lightPos", lightPos);
+
+        //intend visual of the fragment under white light
+        shaderProgram.setVec3("material.ambient", glm::vec3(.135f, .2225f, 0.1575f));
+        shaderProgram.setVec3("material.diffuse", glm::vec3(.54f, .89f, 0.63f));
+        shaderProgram.setVec3("material.specular", glm::vec3(0.316228f));
+        //shaderProgram.setVec3("material.ambient", glm::vec3(0.5f));
+        //shaderProgram.setVec3("material.diffuse", glm::vec3(0.5f));
+        //shaderProgram.setVec3("material.specular", glm::vec3(0.2f)); //how bright the reflected light will be
+        shaderProgram.setFloat("material.shininess", 32.0f); //how well the object will reflect the light, sharpness in appearance of the light
+
+        float lightsin = std::sin(glm::radians(glfwGetTime() * 10));
+        float lightcos = std::cos(glm::radians(glfwGetTime() * 10));
+
+        //changes the actual color of the light
+        shaderProgram.setVec3("light.ambient", glm::vec3(1.0f));
+        //shaderProgram.setVec3("light.diffuse", glm::vec3(1.0f));
+        shaderProgram.setVec3("light.specular", glm::vec3(1.0f));
+
+        //shaderProgram.setVec3("light.ambient", glm::vec3(1.0f, 0.0f, 0.0f));
+        shaderProgram.setVec3("light.diffuse", glm::vec3(0.1f, 0.0f, 0.0f));
+        //shaderProgram.setVec3("light.specular", glm::vec3(0.0f, 5.0f, 0.0f));
 
         shaderProgram.setMat4("projection", projection);
         shaderProgram.setMat4("view", camera.getViewMat());
@@ -184,6 +203,9 @@ int main(void)
 
         //begin rendering light cube
         lightingProgram.use();
+
+        glm::vec3 lightSourceColor = glm::vec3(1.0f, 1.0f, 1.0f);
+        lightingProgram.setVec3("lightSourceColor", lightSourceColor);
         lightingProgram.setMat4("projection", projection);
         lightingProgram.setMat4("view", camera.getViewMat());
 
@@ -216,40 +238,4 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
         fov = 1.0f;
     if (fov > 45.0f)
         fov = 45.0f;
-}
-
-//keep in mind that in there should be no matrix computations to be done here, rather we are just trying to create a view matrix based on inputted values
-//at this point in the code, the rotation as been done already, its just a matter of placing it in the correct orientation.
-glm::mat4 myLookAt(glm::vec3 cameraPosition, glm::vec3 cameraFront, glm::vec3 cameraUp)
-{
-    // Compute the forward vector
-    glm::vec3 forward = glm::normalize(cameraPosition - cameraFront);
-
-    // Compute the right vector
-    glm::vec3 right = glm::normalize(glm::cross(glm::normalize(cameraUp), forward));
-
-    // Compute the actual up vector
-    glm::vec3 up = glm::cross(forward, right);
-
-    // Construct the view matrix manually
-    // TO NOTE, THIS IS COLUMN MAJOR, MEANING FOLLOWING WHAT YOU LEARNED IN MATH, first index is row, second index is column, matrix vector mult is matrix * vector still
-    // view [row][column]
-    // read "going down the column"
-    glm::mat4 view = glm::mat4(1.0f);
-    view[0][0] = right.x;
-    view[1][0] = right.y;
-    view[2][0] = right.z;
-    view[3][0] = -glm::dot(right, cameraPosition);
-
-    view[0][1] = up.x;
-    view[1][1] = up.y;
-    view[2][1] = up.z;
-    view[3][1] = -glm::dot(up, cameraPosition);
-
-    view[0][2] = forward.x;
-    view[1][2] = forward.y;
-    view[2][2] = forward.z;
-    view[3][2] = -glm::dot(forward, cameraPosition);
-
-    return view;
 }
