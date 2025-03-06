@@ -62,6 +62,11 @@ glm::vec3 Camera::getPosition()
     return cameraPosition;
 }
 
+glm::vec3 Camera::getFront()
+{
+    return cameraPosition + cameraForward;
+}
+
 void Camera::setMouseSens(float mouseSens)
 {
     this->mouseSens = mouseSens;

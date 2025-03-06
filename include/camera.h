@@ -15,6 +15,7 @@ public:
     void TakeInputs(GLFWwindow*);
     glm::mat4 getViewMat();
     glm::vec3 getPosition();
+    glm::vec3 getFront();
     void setMouseSens(float);
     void setCameraSpeed(float);
 
