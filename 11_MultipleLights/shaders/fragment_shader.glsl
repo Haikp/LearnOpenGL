@@ -65,13 +65,12 @@ void main()
     vec3 norm = normalize(vNormal);
     vec3 viewDir = normalize(cameraPosition - fragPos);
     vec3 fragResults = vec3(0.0f);
-    vec3 testing = vec3(0.0f);
 
-    testing += CalcDirLight(dirLight, norm, viewDir);
+    fragResults += CalcDirLight(dirLight, norm, viewDir);
 
     for (int i = 0; i < NR_POINT_LIGHTS; i++)
     {
-        testing += CalcPointLight(pointLights[i], fragPos, norm, viewDir);
+        fragResults += CalcPointLight(pointLights[i], fragPos, norm, viewDir);
     }
 
     fragResults += CalcSpotLight(spotLight, fragPos, norm, viewDir);
@@ -132,14 +131,14 @@ vec3 CalcSpotLight(SpotLight light, vec3 fragPos, vec3 normal, vec3 viewDir)
     {
         //light fall off distance calculation
         float distance = length(light.position - fragPos);
-        float attentuation = 1 / (light.constant + light.linear * distance + light.quadratic * distance * distance);
+        float attentuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * distance * distance);
 
         //smooth edges on circle
         float epsilon = light.cutOff - light.outerCutOff;
         float intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
 
         //diffuse
-        vec3 lightVec = light.position - fragPos;
+        vec3 lightVec = normalize(light.position - fragPos);
         float diff = max(dot(lightVec, normal), 0.0);
         vec3 diffuse = light.diffuse * texture(material.diffuse, vTexCoords).rgb * diff * intensity * attentuation;
 

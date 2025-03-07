@@ -239,7 +239,7 @@ int main(void)
         shaderProgram.setVec3("dirLight.direction", glm::vec3(-0.2f, -1.0f, -0.3f));
 
         shaderProgram.setVec3("dirLight.ambient", glm::vec3(0.05f));
-        shaderProgram.setVec3("dirLight.diffuse", glm::vec3(0.4f));
+        shaderProgram.setVec3("dirLight.diffuse", glm::vec3(0.25f));
         shaderProgram.setVec3("dirLight.specular", glm::vec3(0.5f));
 
         shaderProgram.setVec3("pointLights[0].position", lightPos);
@@ -250,9 +250,9 @@ int main(void)
         shaderProgram.setFloat("pointLights[0].quadratic", 0.032f);
 
         //changes the actual color of the light
-        shaderProgram.setVec3("pointLights[0].ambient", glm::vec3(0.2f));
-        shaderProgram.setVec3("pointLights[0].diffuse", glm::vec3(0.5f));
-        shaderProgram.setVec3("pointLights[0].specular", glm::vec3(1.0f));
+        shaderProgram.setVec3("pointLights[0].ambient", glm::vec3(0.05f));
+        shaderProgram.setVec3("pointLights[0].diffuse", glm::vec3(0.6f));
+        shaderProgram.setVec3("pointLights[0].specular", glm::vec3(0.7f));
 
         shaderProgram.setVec3("spotLight.position", camera.getPosition());
 
@@ -268,7 +268,7 @@ int main(void)
         //changes the actual color of the light
         shaderProgram.setVec3("spotLight.ambient", glm::vec3(0.2f));
         shaderProgram.setVec3("spotLight.diffuse", glm::vec3(0.5f));
-        shaderProgram.setVec3("spotLight.specular", glm::vec3(0.1f));
+        shaderProgram.setVec3("spotLight.specular", glm::vec3(1.0f));
 
         shaderProgram.setMat4("projection", projection);
         shaderProgram.setMat4("view", camera.getViewMat());
