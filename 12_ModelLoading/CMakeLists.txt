@@ -3,6 +3,7 @@ project(test_project VERSION 0.1.0)
 
 add_definitions(-DSHADER_PATH=${CMAKE_SOURCE_DIR}/shaders/)
 add_definitions(-DTEXTURE_PATH=${CMAKE_SOURCE_DIR}/textures/)
+add_definitions(-DMODEL_PATH=${CMAKE_SOURCE_DIR}/models/)
 
 add_executable(app
     src/main.cpp
@@ -29,8 +30,10 @@ include_directories(${CMAKE_SOURCE_DIR}/../include)
 
 add_library(my_library SHARED
     ../src/shaders.cpp
-    ../src/mesh.cpp
+#    ../src/mesh.cpp
     ../src/camera.cpp
+#    ../src/bettermesh.cpp
+#    ../src/model.cpp
 )
 
 set(CMAKE_PREFIX_PATH "/usr/local/lib/cmake/glfw3/glfw3Config.cmake" ${CMAKE_PREFIX_PATH})

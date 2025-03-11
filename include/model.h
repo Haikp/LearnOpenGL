@@ -2,27 +2,44 @@
 #define MODEL_H
 
 #include "bettermesh.h"
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
+#include "shaders.h"
+
+#include <../dependencies/glm/glm/glm.hpp>
+#include <../dependencies/glm/glm/gtc/matrix_transform.hpp>
+#include <../dependencies/glm/glm/gtc/type_ptr.hpp>
+#include <../dependencies/stb/include/stb_image.h>
+#include <../dependencies/assimp/include/assimp/Importer.hpp>
+#include <../dependencies/assimp/include/assimp/scene.h>
+#include <../dependencies/assimp/include/assimp/postprocess.h>
+
+#include <string>
+#include <fstream>
+#include <sstream>
+#include <iostream>
+#include <map>
+#include <vector>
 
 class Model {
 public:
-    Model(char *path)
+    Model(const char *path)
     {
         loadModel(path);
     }
+
     void Draw(Shader &shader);
+    void PrintData();
 private:
     // model data
-    vector<Mesh> meshes;
-    string directory;
+    std::vector<Texture> textures_loaded;
+    std::vector<Mesh> meshes;
+    std::string directory;
 
-    void loadModel(string path);
+    void loadModel(std::string path);
     void processNode(aiNode *node, const aiScene *scene);
     Mesh processMesh(aiMesh *mesh, const aiScene *scene);
-    vector<Texture> loadMaterialTextures(aiMaterial *mat, aiTextureType type,
-                                         string typeName);
+    std::vector<Texture> loadMaterialTextures(aiMaterial *mat, aiTextureType type,
+                                         std::string typeName);
+    unsigned int TextureFromFile(const char *path, const std::string &directory, bool gamma = false);
 };
 
 #endif

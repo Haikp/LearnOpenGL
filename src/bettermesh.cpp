@@ -1,6 +1,6 @@
 #include "bettermesh.h"
 
-Mesh::Mesh(vector<Vertex> vertices, vector<unsigned int> indices, vector<Texture> textures)
+Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures)
 {
     this->vertices = vertices;
     this->indices = indices;
@@ -16,8 +16,8 @@ void Mesh::Draw(Shader &shader)
     for (int i = 0; i < textures.size(); i++)
     {
         glActiveTexture(GL_TEXTURE0 + i);
-        string number;
-        string name = textures[i].type;
+        std::string number;
+        std::string name = textures[i].type;
         if (name == "texture_diffuse")
             number = std::to_string(diffuseNr++);
          else if (name == "texture_specular")
@@ -38,6 +38,37 @@ void Mesh::Draw(Shader &shader)
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
+}
+
+void Mesh::PrintData()
+{
+    std::cout << "VERTICES.POSITION" << std::endl;
+
+    for (int i = 0; i < vertices.size(); i++)
+    {
+         std::cout << vertices[i].position[0] << " " << vertices[i].position[1] << " " << vertices[i].position[2] << std::endl;
+    }
+
+    std::cout << "VERTICES.NORMALS" << std::endl;
+
+    for (int i = 0; i < vertices.size(); i++)
+    {
+         std::cout << vertices[i].normal[0] << " " << vertices[i].normal[1] << " " << vertices[i].normal[2] << std::endl;
+    }
+
+    std::cout << "\nVERTICES.TEXCOORDS" << std::endl;
+
+    for (int i = 0; i < vertices.size(); i++)
+    {
+         std::cout << vertices[i].texCoords[0] << " " << vertices[i].texCoords[1] << std::endl;
+    }
+
+    std::cout << "\nINDICES" << std::endl;
+
+    for (int i = 0; i < indices.size(); i++)
+    {
+         std::cout << indices[i] << std::endl;
+    }
 }
 
 void Mesh::setUpMesh()
@@ -77,8 +108,8 @@ Mesh::~Mesh()
     glDeleteBuffers(1, &EBO);
 
     // Delete textures
-    for (Texture texture : textures) {
-        glDeleteTextures(1, texture.id);
+    for (const Texture &texture : textures) {
+        glDeleteTextures(1, &texture.id);
     }
 }
 
