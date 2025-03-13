@@ -1,0 +1,2 @@
+# Contents of this Branch
+Today's module made me want to revisit the depth testing module again, as a I feel like I didn't get as much out of it as I should have. There should be more to understanding other than what the depth buffer does and how to tweak with it, rather how does the math behind it work. I'm not sure if this is a waste of time or not, but I believe theres some merit to doing so. As such, I'll spend my time to learn more about depth testing, and NDC with how the math plays out there, then I'll reconvene with the stencil module.
