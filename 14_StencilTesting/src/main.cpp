@@ -27,6 +27,7 @@ void scroll_callback(GLFWwindow*, double, double);
 glm::mat4 myLookAt(glm::vec3, glm::vec3, glm::vec3);
 
 //just for dynamic purposes for future projects
+std::string path_to_outline_vertex_shader = std::string(TOSTRING(SHADER_PATH)) + "outline_vertex_shader.glsl";
 std::string path_to_outline_fragment_shader = std::string(TOSTRING(SHADER_PATH)) + "outline_fragment_shader.glsl";
 std::string path_to_vertex_shader = std::string(TOSTRING(SHADER_PATH)) + "vertex_shader.glsl";
 std::string path_to_fragment_shader = std::string(TOSTRING(SHADER_PATH)) + "fragment_shader.glsl";
@@ -174,6 +175,7 @@ int main(void)
     //compile shaders
     //for the cube that will be lit up
     Shader shaderProgram(path_to_vertex_shader.c_str(), path_to_fragment_shader.c_str());
+    Shader outlineProgram(path_to_vertex_shader.c_str(), path_to_outline_fragment_shader.c_str());
     shaderProgram.use();
 
     unsigned int cubeTexture, floorTexture;
@@ -226,9 +228,6 @@ int main(void)
 
     shaderProgram.setInt("texture0", 0);
 
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_STENCIL_TEST);
-
     glm::vec3 cameraPosition = glm::vec3(0.0f, 0.0f, 10.0f);
     glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
     glm::vec3 cameraOrientiation = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -236,26 +235,43 @@ int main(void)
     Camera camera(cameraPosition, cameraFront, cameraOrientiation, xWindowSize, yWindowSize);
 
     glm::mat4 projection = glm::perspective(glm::radians(fov), ((float)xWindowSize / (float)yWindowSize), 0.1f, 100.0f);
-    shaderProgram.setMat4("projection", projection);
 
+    glEnable(GL_STENCIL_TEST);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
+        glEnable(GL_DEPTH_TEST);
+
         processInput(window);
         camera.TakeInputs(window);
 
-        glClearColor(.0f, .1f, .1f, 1.0f);
+        glClearColor(.0f, .0f, .0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
         shaderProgram.use();
+        shaderProgram.setMat4("projection", projection);
         shaderProgram.setMat4("view", camera.getViewMat());
 
+        //draw plane
+        glStencilMask(0x00);
+        glBindVertexArray(planeVAO);
+        glBindTexture(GL_TEXTURE_2D, floorTexture);
+
+        glm::mat4 model = glm::mat4(1.0f);
+        shaderProgram.setMat4("model", model);
+
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+
         //draw cubes
+        glStencilFunc(GL_ALWAYS, 1, 0xFF);
+        glStencilMask(0xFF);
+
         glBindVertexArray(VAO);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, cubeTexture);
 
-        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(-1.0f, 0.0f, -1.0f)); // translate it down so it's at the center of the scene
         shaderProgram.setMat4("model", model);
 
@@ -268,17 +284,38 @@ int main(void)
 
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
-        //draw plane
-        glBindVertexArray(planeVAO);
-        glBindTexture(GL_TEXTURE_2D, floorTexture);
+        //draw cube outlines
+        glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+        glStencilMask(0x00);
+        glDisable(GL_DEPTH_TEST);
+        outlineProgram.use();
+        outlineProgram.setMat4("projection", projection);
+        outlineProgram.setMat4("view", camera.getViewMat());
+
+        glBindVertexArray(VAO);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, cubeTexture);
 
         model = glm::mat4(1.0f);
-        shaderProgram.setMat4("model", model);
+        model = glm::translate(model, glm::vec3(-1.0f, 0.0f, -1.0f));
+        model = glm::scale(model, glm::vec3(1.1f));
+        outlineProgram.setMat4("model", model);
 
-        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        //cube outline number 2
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(1.1f));
+        outlineProgram.setMat4("model", model);
+
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        glBindVertexArray(0);
+        glStencilMask(0xFF);
+        glStencilFunc(GL_ALWAYS, 0, 0xFF);
 
         glfwSetScrollCallback(window, scroll_callback);
-
 
         glfwSwapBuffers(window);
         glfwPollEvents();
