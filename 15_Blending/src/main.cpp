@@ -220,7 +220,7 @@ int main(void)
     Shader outlineProgram(path_to_vertex_shader.c_str(), path_to_outline_fragment_shader.c_str());
     shaderProgram.use();
 
-    unsigned int cubeTexture, floorTexture, grassTexture;
+    unsigned int cubeTexture, floorTexture, grassTexture, windowTexture;
     glGenTextures(1, &cubeTexture);
     glBindTexture(GL_TEXTURE_2D, cubeTexture);
 
@@ -289,14 +289,39 @@ int main(void)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
+    stbi_image_free(data);
+
+    glGenTextures(1, &windowTexture);
+    glBindTexture(GL_TEXTURE_2D, windowTexture);
+
+    data = stbi_load((path_to_textures + "blending_transparent_window.png").c_str(), &width, &height, &nrChannels, 0);
+    stbi_set_flip_vertically_on_load(true);
+
+    if(data)
+    {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    else
+    {
+        std::cerr << "Failed to load blending_transparent_window.png." << std::endl;
+    }
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    stbi_image_free(data);
+
     shaderProgram.setInt("texture0", 0);
 
     vector<glm::vec3> vegetation;
+    vegetation.push_back(glm::vec3(-0.3f,  0.0f, -2.3f));
+    vegetation.push_back(glm::vec3( 0.5f,  0.0f, -0.6f));
     vegetation.push_back(glm::vec3(-1.5f,  0.0f, -0.48f));
     vegetation.push_back(glm::vec3( 1.5f,  0.0f,  0.51f));
     vegetation.push_back(glm::vec3( 0.0f,  0.0f,  0.7f));
-    vegetation.push_back(glm::vec3(-0.3f,  0.0f, -2.3f));
-    vegetation.push_back(glm::vec3( 0.5f,  0.0f, -0.6f));
 
     glm::vec3 cameraPosition = glm::vec3(0.0f, 0.0f, 10.0f);
     glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
@@ -305,6 +330,9 @@ int main(void)
     Camera camera(cameraPosition, cameraFront, cameraOrientiation, xWindowSize, yWindowSize);
 
     glm::mat4 projection = glm::perspective(glm::radians(fov), ((float)xWindowSize / (float)yWindowSize), 0.1f, 100.0f);
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
@@ -350,16 +378,27 @@ int main(void)
 
         glBindVertexArray(grassVAO);
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, grassTexture);
+        glBindTexture(GL_TEXTURE_2D, windowTexture);
 
+        std::map<float, glm::vec3> sorted;
         for (int i = 0; i < vegetation.size(); i++)
         {
+            float distance = glm::length(camera.getPosition() - vegetation[i]);
+            sorted[distance] = vegetation[i];
+        }
+
+        glDepthMask(GL_FALSE);
+        //for (std::map<float, glm::vec3>::reverse_iterator it = sorted.rbegin(); it != sorted.rend(); ++it)
+        for (std::map<float, glm::vec3>::iterator it = sorted.begin(); it != sorted.end(); ++it)
+        {
             model = glm::mat4(1.0f);
-            model = glm::translate(model, vegetation[i]);
+            model = glm::translate(model, it->second);
             shaderProgram.setMat4("model", model);
 
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         }
+
+        glDepthMask(GL_TRUE);
 
         glBindVertexArray(0);
 
