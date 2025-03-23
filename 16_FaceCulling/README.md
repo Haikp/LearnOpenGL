@@ -1,0 +1,2 @@
+# Contents of this Branch
+This module was very short, essentially one line of code that makes a huge difference in performance. Originally I had thought that culling was done automatically, but understanding that its best to leave it as a setting for people getting introduced to OpenGL makes sense. Knowing that it's not automatic though, I would also presume that frustum culling is not automatic either, which will be interesting topic to look in to. It appears that there is a module for frustum culling, so I'll leave the independent research for when I do reach this module.

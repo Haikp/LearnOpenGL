@@ -339,6 +339,7 @@ int main(void)
     while (!glfwWindowShouldClose(window))
     {
         glEnable(GL_DEPTH_TEST);
+        glFrontFace(GL_CW);
 
         processInput(window);
         camera.TakeInputs(window);
