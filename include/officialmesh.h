@@ -98,6 +98,13 @@ public:
         glActiveTexture(GL_TEXTURE0);
     }
 
+    ~Mesh()
+    {
+        glDeleteBuffers(1, &VBO);
+        glDeleteBuffers(1, &EBO);
+        glDeleteVertexArrays(1, &VAO);
+    }
+
 private:
     // render data
     unsigned int VBO, EBO;
