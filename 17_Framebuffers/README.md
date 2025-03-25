@@ -1,2 +1,4 @@
 # Contents of this Branch
 This module was very short, essentially one line of code that makes a huge difference in performance. Originally I had thought that culling was done automatically, but understanding that its best to leave it as a setting for people getting introduced to OpenGL makes sense. Knowing that it's not automatic though, I would also presume that frustum culling is not automatic either, which will be interesting topic to look in to. It appears that there is a module for frustum culling, so I'll leave the independent research for when I do reach this module.
+
+So far, my current understanding is that the framebuffer really feels like a filter more than anything. This is definitely incorrect though, as you are able to render something like a rear view camera. The main premise behind these buffers is that you are able to render objects through the framebuffer. I will take more time and more research, and will update this README.md file.
