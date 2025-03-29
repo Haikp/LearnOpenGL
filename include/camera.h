@@ -14,6 +14,7 @@ public:
     Camera(glm::vec3, glm::vec3, glm::vec3, unsigned int, unsigned int);
     void TakeInputs(GLFWwindow*);
     glm::mat4 getViewMat();
+    glm::mat4 getRearViewMat();
     glm::vec3 getPosition();
     glm::vec3 getFront();
     void setMouseSens(float);

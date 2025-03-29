@@ -132,3 +132,16 @@ void Camera::mouse_button_callback(GLFWwindow* window, int button, int action, i
         }
     }
 }
+
+glm::mat4 Camera::getRearViewMat()
+{
+    glm::vec3 direction;
+    direction.x = std::cos(glm::radians(yaw + 180.0f)) * std::cos(glm::radians(pitch + 180.0f));
+    direction.y = -std::sin(glm::radians(pitch + 180.0f));
+    direction.z = std::sin(glm::radians(yaw + 180.0f)) * std::cos(glm::radians(pitch + 180.0f));
+    direction = glm::normalize(direction);
+
+    glm::mat4 rearViewMatrix = glm::lookAt(cameraPosition, cameraPosition - direction, cameraUp);
+    return rearViewMatrix;
+
+}

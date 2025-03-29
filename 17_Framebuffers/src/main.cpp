@@ -296,6 +296,33 @@ int main(void)
     if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
         std::cout << "ERROR::FRAMEBUFFER::Framebuffer is not complete!" << std::endl;
 
+    unsigned int fboRear, fboTextureRear;
+    glGenFramebuffers(1, &fboRear);
+    glBindFramebuffer(GL_FRAMEBUFFER, fboRear);
+
+    glGenTextures(1, &fboTextureRear);
+    glBindTexture(GL_TEXTURE_2D, fboTextureRear);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, xWindowSize, yWindowSize, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fboTextureRear, 0);
+
+    unsigned int rboRear;
+    glGenRenderbuffers(1, &rboRear);
+    glBindRenderbuffer(GL_RENDERBUFFER, rboRear);
+
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, xWindowSize, yWindowSize);
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+
+    if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+        std::cout << "ERROR::FRAMEBUFFER::Framebuffer rear is not complete!" << std::endl;
+
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     Shader screenShader(path_to_framebuffer_vertex_shader.c_str(), path_to_framebuffer_fragment_shader.c_str());
@@ -304,17 +331,15 @@ int main(void)
 
     float quadVertices[] = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
         // positions   // texCoords
-        -1.0f,  1.0f,  0.0f, 1.0f,
-        -1.0f, -1.0f,  0.0f, 0.0f,
-         1.0f, -1.0f,  1.0f, 0.0f,
-
-        -1.0f,  1.0f,  0.0f, 1.0f,
-         1.0f, -1.0f,  1.0f, 0.0f,
-         1.0f,  1.0f,  1.0f, 1.0f
+        -1.0f,  1.0f,  0.0f, 1.0f,      //top left
+        -1.0f, -1.0f,  0.0f, 0.0f,      //bottom left
+         1.0f, -1.0f,  1.0f, 0.0f,      //bottom right
+         1.0f,  1.0f,  1.0f, 1.0f       //top right
     };
 
     unsigned int quadIndices[] = {
-        0, 1, 2, 3, 4, 5
+        0, 1, 2,
+        0, 2, 3
     };
 
     unsigned int quadVAO, quadVBO, quadEBO;
@@ -334,13 +359,46 @@ int main(void)
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 
+    float rearVertices[] = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
+        // positions   // texCoords
+        -1.0f,  1.0f,  0.0f, 1.0f,      //top left
+        -1.0f,  0.5f,  0.0f, 0.0f,      //bottom left
+        -0.5f,  0.5f,  1.0f, 0.0f,      //bottom right
+        -0.5f,  1.0f,  1.0f, 1.0f       //top right
+    };
+
+    unsigned int rearIndices[] = {
+        0, 1, 2,
+        0, 2, 3
+    };
+
+    unsigned int rearVAO, rearVBO, rearEBO;
+    glGenVertexArrays(1, &rearVAO);
+    glBindVertexArray(rearVAO);
+
+    glGenBuffers(1, &rearVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, rearVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(rearVertices), &rearVertices, GL_STATIC_DRAW);
+
+    glGenBuffers(1, &rearEBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, rearEBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(rearIndices), &rearIndices, GL_STATIC_DRAW);
+
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+
     glBindVertexArray(0);
 
     glm::vec3 cameraPosition = glm::vec3(0.0f, 0.0f, 10.0f);
     glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+    glm::vec3 rearViewCameraFront = glm::vec3(0.0f, 0.0f, 11.0f);
     glm::vec3 cameraOrientiation = glm::vec3(0.0f, 1.0f, 0.0f);
 
     Camera camera(cameraPosition, cameraFront, cameraOrientiation, xWindowSize, yWindowSize);
+
+    Shader rearViewShader(path_to_vertex_shader.c_str(), path_to_fragment_shader.c_str());
 
     glm::mat4 projection = glm::perspective(glm::radians(fov), ((float)xWindowSize / (float)yWindowSize), 0.1f, 100.0f);
 
@@ -394,7 +452,52 @@ int main(void)
         screenShader.use();
         glBindVertexArray(quadVAO);
         glBindTexture(GL_TEXTURE_2D, fboTexture);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+        glBindFramebuffer(GL_FRAMEBUFFER, fboRear);
+        glClearColor(.1f, .1f, .1f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glEnable(GL_DEPTH_TEST);
+
+        shaderProgram.use();
+
+        shaderProgram.setMat4("projection", projection);
+        shaderProgram.setMat4("view", camera.getRearViewMat());
+
+        //draw plane
+        glBindVertexArray(planeVAO);
+        glBindTexture(GL_TEXTURE_2D, floorTexture);
+
+        model = glm::mat4(1.0f);
+        shaderProgram.setMat4("model", model);
+
         glDrawArrays(GL_TRIANGLES, 0, 6);
+
+        //draw cubes
+        glBindVertexArray(VAO);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, cubeTexture);
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(-1.0f, 0.0f, -1.0f)); // translate it down so it's at the center of the scene
+        shaderProgram.setMat4("model", model);
+
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        //cube number 2
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
+        shaderProgram.setMat4("model", model);
+
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glDisable(GL_DEPTH_TEST);
+
+        screenShader.use();
+        glBindVertexArray(rearVAO);
+        glBindTexture(GL_TEXTURE_2D, fboTextureRear);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         glfwSetScrollCallback(window, scroll_callback);
 
