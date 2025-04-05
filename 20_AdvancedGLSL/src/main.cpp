@@ -158,11 +158,13 @@ int main(void)
     Shader pointsShader(path_to_points_vertex_shader.c_str(), path_to_points_fragment_shader.c_str());
 
     //ubos
-    unsigned int ubo;
-    glGenBuffers(GL_UNFORM_BUFFER, &ubo);
-    glBindBuffer(GL_UNFORM_BUFFER, ubo);
-    glBufferData(GL_UNFORM_BUFFER, 32, NULL, GL_STATIC_DRAW);
-    glBindBuffer(GL_UNFORM_BUFFER, 0);
+    unsigned int cameraUBO;
+    glGenBuffers(1, &cameraUBO);
+    glBindBuffer(GL_UNIFORM_BUFFER, cameraUBO);
+    glBufferData(GL_UNIFORM_BUFFER, 128, NULL, GL_STATIC_DRAW);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+    glBindBufferBase(GL_UNIFORM_BUFFER, 0, cameraUBO);
 
     glm::vec3 cameraPosition = glm::vec3(0.0f, 0.0f, 10.0f);
     glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
@@ -171,6 +173,10 @@ int main(void)
     Camera camera(cameraPosition, cameraFront, cameraOrientiation, xWindowSize, yWindowSize);
 
     glm::mat4 projection = glm::perspective(glm::radians(fov), ((float)xWindowSize / (float)yWindowSize), 0.1f, 100.0f);
+
+    glBindBuffer(GL_UNIFORM_BUFFER, cameraUBO);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(projection));
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     glEnable(GL_PROGRAM_POINT_SIZE);
 
@@ -183,11 +189,11 @@ int main(void)
 
         processInput(window);
         camera.TakeInputs(window);
+        glBindBuffer(GL_UNIFORM_BUFFER, cameraUBO);
+        glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(camera.getViewMat()));
+        glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
         shaderProgram.use();
-        shaderProgram.setVec3("cameraPos", camera.getPosition());
-        shaderProgram.setMat4("projection", projection);
-        shaderProgram.setMat4("view", camera.getViewMat());
 
         glm::mat4 model = glm::mat4(1.0f);
         shaderProgram.setMat4("model", model);
@@ -204,8 +210,6 @@ int main(void)
 
         pointsShader.use();
         glBindVertexArray(pointVAO);
-        pointsShader.setMat4("projection", projection);
-        pointsShader.setMat4("view", camera.getViewMat());
         pointsShader.setMat4("model", model);
 
         glDrawArrays(GL_POINTS, 0, 8);
