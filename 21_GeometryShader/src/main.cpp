@@ -71,7 +71,27 @@ int main(void)
         return -1;
     }
 
-    Model backpack((path_to_models + "backpack/backpack.obj").c_str());
+    float points[] = {
+        -0.5f,  0.5f, 1.0f, 0.0f, 0.0f, // top-left
+        0.5f,  0.5f, 0.0f, 1.0f, 0.0f, // top-right
+        0.5f, -0.5f, 0.0f, 0.0f, 1.0f, // bottom-right
+        -0.5f, -0.5f, 1.0f, 1.0f, 0.0f  // bottom-left
+    };
+
+    unsigned int pointVAO, pointVBO;
+    glGenVertexArrays(1, &pointVAO);
+    glBindVertexArray(pointVAO);
+
+    glGenBuffers(1, &pointVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, pointVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(points), &points, GL_STATIC_DRAW);
+
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(2 * sizeof(float)));
+
+    glBindVertexArray(0);
 
     //compile shaders
     Shader pointsShader(path_to_points_vertex_shader.c_str(), path_to_points_geometry_shader.c_str(), path_to_points_fragment_shader.c_str());
@@ -97,12 +117,6 @@ int main(void)
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(projection));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-    pointsShader.use();
-    glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
-    model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
-    pointsShader.setMat4("model", model);
-
     glEnable(GL_PROGRAM_POINT_SIZE);
 
     glEnable(GL_DEPTH_TEST);
@@ -118,14 +132,23 @@ int main(void)
         glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(camera.getViewMat()));
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-        backpack.Draw(pointsShader);
+        glm::mat4 model = glm::mat4(1.0f);
 
+        pointsShader.use();
+        glBindVertexArray(pointVAO);
+        pointsShader.setMat4("model", model);
+
+        glDrawArrays(GL_POINTS, 0, 4);
 
         glfwSetScrollCallback(window, scroll_callback);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
+
+    glDeleteVertexArrays(1, &pointVAO);
+
+    glDeleteBuffers(1, &pointVBO);
 
     glfwTerminate();
     return 0;

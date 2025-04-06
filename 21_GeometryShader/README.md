@@ -1,2 +1,4 @@
 # Contents of this Branch
+The use of a geometry shader is to manipulate our primitive physically, all being doing on the GPU. It takes in an entire primitive and can interate over each vertex to apply changes or do math. In the module, we calculate the normal based on the vertex given, and promptly translate the primitive along the normal vector. A useful debugging tip using the geometry shader involves emitting the normals, which this allows for us to see if the normals are correct for the use of lighting.
 
+I did run into a rather large problem, and as such this module will likely need to be revisited eventually. For some reason I am unable to render models, both in this module and the original module 12_ModelLoading. I'm not sure how it broke altogether, but I am still able to render models in my personal project with seemingly the same code. I'll figure it out eventually.
