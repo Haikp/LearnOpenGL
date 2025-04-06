@@ -99,11 +99,10 @@ int main(void)
     {
         processInput(window);
 
-        glClearColor(.0f, .0f, .0f, 1.0f);
+        glClearColor(.1f, .1f, .1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         camera.TakeInputs(window);
-
 
         backpack.Draw(shaderProgram);
 
@@ -111,8 +110,6 @@ int main(void)
 
         glfwSetScrollCallback(window, scroll_callback);
 
-
-        glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
