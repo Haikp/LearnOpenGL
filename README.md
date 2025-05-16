@@ -1,5 +1,5 @@
 # My OpenGL Learning Journey
-This repo will contain mostly everything that I have learned about OpenGL, all separated in to branches. I will try to keep everything well documented, with a roadmap in this readme file, and perhaps more description as to what was learned other readme files in their respective branches.
+This repo will contain mostly everything that I have learned about OpenGL, all separated in to folders. I will try to keep everything well documented, with a roadmap in this readme file, and perhaps more description as to what was learned other readme files in their respective branches.
 
 ## Requirements
 Requirements will be different for each branch when looking at vendors/dependencies.
